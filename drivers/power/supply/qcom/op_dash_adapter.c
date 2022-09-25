@@ -222,11 +222,9 @@ static void dash_uart_irq_fiq_enable(bool enable)
 {
 	if (enable) {
 		preempt_enable();
-		local_fiq_enable();
 		local_irq_enable();
 	} else {
 		local_irq_disable();
-		local_fiq_disable();
 		preempt_disable();
 	}
 }
