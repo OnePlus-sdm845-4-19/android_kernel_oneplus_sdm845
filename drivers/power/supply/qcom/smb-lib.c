@@ -5,7 +5,6 @@
 /* david.liu@bsp, 20171023 Battery & Charging porting */
 #define pr_fmt(fmt) "SMBLIB: %s: " fmt, __func__
 
-#define CONFIG_MSM_RDM_NOTIFY
 #undef CONFIG_FB
 #include <linux/device.h>
 #include <linux/regmap.h>
