@@ -1065,42 +1065,34 @@ int dsi_display_set_power(struct drm_connector *connector,
 	switch (power_mode) {
 	case SDE_MODE_DPMS_LP1:
 		rc = dsi_panel_set_lp1(display->panel);
-		blank = MSM_DRM_BLANK_NORMAL;
-		notifier_data.data = &blank;
-		notifier_data.id = connector_state_crtc_index;
-		msm_drm_notifier_call_chain(MSM_DRM_EARLY_EVENT_BLANK,
-					    &notifier_data);
 		break;
 	case SDE_MODE_DPMS_LP2:
 		rc = dsi_panel_set_lp2(display->panel);
 		break;
-	case SDE_MODE_DPMS_ON:
-		if ((display->panel->power_mode == SDE_MODE_DPMS_LP1) ||
-			(display->panel->power_mode == SDE_MODE_DPMS_LP2))
-			rc = dsi_panel_set_nolp(display->panel);
+	default:
+		rc = dsi_panel_set_nolp(display->panel);
+		break;
+	}
+
+	if (power_mode == SDE_MODE_DPMS_ON) {
 		blank = MSM_DRM_BLANK_UNBLANK_CUST;
 		notifier_data.data = &blank;
 		notifier_data.id = connector_state_crtc_index;
 		msm_drm_notifier_call_chain(MSM_DRM_EARLY_EVENT_BLANK,
 					    &notifier_data);
-		break;
-	case SDE_MODE_DPMS_OFF:
+	} else if (power_mode == SDE_MODE_DPMS_LP1) {
+		blank = MSM_DRM_BLANK_NORMAL;
+		notifier_data.data = &blank;
+		notifier_data.id = connector_state_crtc_index;
+		msm_drm_notifier_call_chain(MSM_DRM_EARLY_EVENT_BLANK,
+					    &notifier_data);
+	} else if (power_mode == SDE_MODE_DPMS_OFF) {
 		blank = MSM_DRM_BLANK_POWERDOWN_CUST;
 		notifier_data.data = &blank;
 		notifier_data.id = connector_state_crtc_index;
 		msm_drm_notifier_call_chain(MSM_DRM_EARLY_EVENT_BLANK,
 					    &notifier_data);
-	default:
-		return rc;
 	}
-
-	SDE_EVT32(display->panel->power_mode, power_mode, rc);
-	DSI_DEBUG("Power mode transition from %d to %d %s",
-			display->panel->power_mode, power_mode,
-			rc ? "failed" : "successful");
-	if (!rc)
-		display->panel->power_mode = power_mode;
-
 	return rc;
 }
 
